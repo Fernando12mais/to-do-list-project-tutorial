@@ -9,9 +9,8 @@ type TTarefas = {
 function App() {
   const [tarefas, setTarefas] = useState<TTarefas[]>([]);
   const tarefaSelecionadaRef = useRef<TTarefas>();
-
+  const tarefasContainerRef = useRef<HTMLDivElement>(null);
   const modalRef = useRef<{ open: () => void }>(null);
-
   const inputRef = useRef<HTMLInputElement>(null);
   const aoSubmeter = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -24,6 +23,7 @@ function App() {
         ...(estadoAnterior || []),
       ]);
       inputRef.current.value = "";
+      tarefasContainerRef.current?.scrollTo(0, 0);
     }
   };
 
@@ -59,6 +59,7 @@ function App() {
           Tarefas:
         </h1>
         <div
+          ref={tarefasContainerRef}
           className={
             tarefas.length
               ? "overflow-y-auto max-h-80 flex flex-col gap-6 bg-zinc-700 p-4 rounded"
@@ -71,7 +72,6 @@ function App() {
               key={tarefa.id}
             >
               <span className={tarefa.pronto ? "line-through " : "font-bold"}>
-                {" "}
                 {tarefa.fazer}
               </span>
               <div onClick={() => selecionarTarefa(tarefa)}>

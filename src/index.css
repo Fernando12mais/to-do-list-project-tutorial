@@ -18,4 +18,16 @@
   h1 {
     @apply text-2xl text-slate-900 font-semibold;
   }
+
+  *::-webkit-scrollbar {
+    width: 0.3125rem;
+  }
+
+  * ::-webkit-scrollbar-track {
+    @apply bg-emerald-900;
+  }
+
+  *::-webkit-scrollbar-thumb {
+    @apply bg-cyan-500;
+  }
 }
