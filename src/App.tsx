@@ -68,6 +68,10 @@ function App() {
   useEffect(() => {
     if (!deletarEmMassa) tarefasADeletarRef.current = [];
   }, [deletarEmMassa]);
+
+  useEffect(() => {
+    if (!tarefas.length) setDeletarEmMassa(false);
+  }, [tarefas]);
   return (
     <main className="bg-slate-800 min-h-screen flex flex-col items-center justify-center ">
       <div className="bg-zinc-200 p-8 rounded-xl flex flex-col gap-8 min-w-[18.75rem]">
