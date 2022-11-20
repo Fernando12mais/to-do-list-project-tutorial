@@ -1,4 +1,4 @@
-import { FormEvent, useRef, useState } from "react";
+import { FormEvent, useEffect, useRef, useState } from "react";
 import Button from "./components/button";
 import Modal from "./components/modal";
 type TTarefas = {
@@ -8,6 +8,8 @@ type TTarefas = {
 };
 function App() {
   const [tarefas, setTarefas] = useState<TTarefas[]>([]);
+  const [deletarEmMassa, setDeletarEmMassa] = useState(false);
+  const tarefasADeletarRef = useRef<string[]>();
   const tarefaSelecionadaRef = useRef<TTarefas>();
   const tarefasContainerRef = useRef<HTMLDivElement>(null);
   const modalRef = useRef<{ open: () => void }>(null);
@@ -52,12 +54,33 @@ function App() {
             : tarefaAnterior.pronto,
       }))
     );
+
+  const AodeletarEmMassa = () => setDeletarEmMassa(!deletarEmMassa);
+  const aoConfirmarDelecoes = () =>
+    setTarefas((estadoAnterior) =>
+      estadoAnterior.filter((tarefaAnterior) =>
+        tarefasADeletarRef.current?.every(
+          (id) => String(tarefaAnterior.id) !== id
+        )
+      )
+    );
+
+  useEffect(() => {
+    if (!deletarEmMassa) tarefasADeletarRef.current = [];
+  }, [deletarEmMassa]);
   return (
-    <main className="bg-slate-800 min-h-screen flex flex-col items-center justify-center">
-      <div className="bg-zinc-200 p-8 rounded-xl flex flex-col gap-8">
+    <main className="bg-slate-800 min-h-screen flex flex-col items-center justify-center ">
+      <div className="bg-zinc-200 p-8 rounded-xl flex flex-col gap-8 min-w-[18.75rem]">
         <h1 className="text-2xl text-slate-200 bg-indigo-700 p-2 rounded text-center">
           Tarefas:
         </h1>
+        <Button
+          onClick={AodeletarEmMassa}
+          disabled={!deletarEmMassa && tarefas.length < 2}
+          className={`btn-red ${deletarEmMassa ? "bg-red-500" : ""}`}
+        >
+          Deletar em massa
+        </Button>
         <div
           ref={tarefasContainerRef}
           className={
@@ -75,32 +98,60 @@ function App() {
                 {tarefa.fazer}
               </span>
               <div onClick={() => selecionarTarefa(tarefa)}>
-                <Button onClick={abrirModal} className="btn-red">
-                  Deletar
-                </Button>
-                <Button
-                  onClick={tornarPronto}
-                  className={`btn-slate ml-4 ${
-                    tarefa.pronto ? "bg-emerald-800" : ""
-                  }`}
-                >
-                  Feito
-                </Button>
+                {!deletarEmMassa ? (
+                  <>
+                    <Button onClick={abrirModal} className="btn-red">
+                      Deletar
+                    </Button>
+                    <Button
+                      onClick={tornarPronto}
+                      className={`btn-slate ml-4 ${
+                        tarefa.pronto ? "bg-emerald-800" : ""
+                      }`}
+                    >
+                      Feito
+                    </Button>
+                  </>
+                ) : (
+                  <input
+                    className="h-5 w-5 "
+                    onChange={(e) => {
+                      if (e.target.checked) {
+                        tarefasADeletarRef.current = [
+                          ...(tarefasADeletarRef.current || []),
+                          String(tarefa.id),
+                        ];
+                      } else {
+                        tarefasADeletarRef.current =
+                          tarefasADeletarRef.current?.filter(
+                            (id) => id !== String(tarefa.id)
+                          );
+                      }
+                    }}
+                    type="checkbox"
+                  />
+                )}
               </div>
             </div>
           ))}
         </div>
-        <form onSubmit={aoSubmeter} className="flex flex-col gap-2">
-          <label htmlFor="input-tarefa">Nome da tarefa:</label>
-          <input
-            required
-            maxLength={30}
-            ref={inputRef}
-            className="p-2 rounded text-xl bg-zinc-700 text-slate-200 uppercase"
-            id="input-tarefa"
-          />
-          <Button className="btn-cyan mt-3">Adicionar tarefa</Button>
-        </form>
+        {!deletarEmMassa ? (
+          <form onSubmit={aoSubmeter} className="flex flex-col gap-2">
+            <label htmlFor="input-tarefa">Nome da tarefa:</label>
+            <input
+              required
+              maxLength={30}
+              ref={inputRef}
+              className="p-2 rounded text-xl bg-zinc-700 text-slate-200 uppercase"
+              id="input-tarefa"
+            />
+            <Button className="btn-cyan mt-3">Adicionar tarefa</Button>
+          </form>
+        ) : (
+          <Button className="btn-red" onClick={aoConfirmarDelecoes}>
+            Confirmar deleções
+          </Button>
+        )}
       </div>
       <Modal aoDeletar={aoDeletar} ref={modalRef} />
     </main>
