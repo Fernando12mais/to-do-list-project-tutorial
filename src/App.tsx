@@ -71,7 +71,18 @@ function App() {
 
   useEffect(() => {
     if (!tarefas.length) setDeletarEmMassa(false);
+
+    if (tarefas.length)
+      localStorage.setItem("tarefas", JSON.stringify(tarefas));
   }, [tarefas]);
+
+  useEffect(() => {
+    const cacheTarefas = localStorage.getItem("tarefas");
+
+    if (cacheTarefas) {
+      setTarefas(JSON.parse(cacheTarefas));
+    }
+  }, []);
   return (
     <main className="bg-slate-800 min-h-screen flex flex-col items-center justify-center ">
       <div className="bg-zinc-200 p-8 rounded-xl flex flex-col gap-8 min-w-[18.75rem]">
